@@ -3,7 +3,12 @@ PHP client library voor Magister's excentrieke Web Service interface.
 
 ## Installatie
 ### Vereisten
-- PHP 8.1 of hoger.
+- PHP 8.2 of hoger met de volgende extensies:
+  - [`curl`](https://www.php.net/manual/en/book.curl.php)
+  - [`mbstring`](https://www.php.net/manual/en/book.mbstring.php)
+  - [`filter`](https://www.php.net/manual/en/book.filter.php)
+  - [`libxml`](https://www.php.net/manual/en/book.libxml.php)
+  - [`simplexml`](https://www.php.net/manual/en/book.simplexml.php)
 
 <!-- TODO write installation docs -->
 

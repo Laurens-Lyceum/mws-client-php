@@ -22,7 +22,12 @@
         }
     },
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2",
+        "ext-curl": "*",
+        "ext-filter": "*",
+        "ext-mbstring": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "pestphp/pest": "^3.5"
