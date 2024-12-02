@@ -1,0 +1,35 @@
+{
+    "name": "laurens-lyceum/mws-client-php",
+    "type": "library",
+    "version": "0.1.0",
+    "description": "PHP client library for Magister's eccentric Web Service interface.",
+    "keywords": ["magister", "mws"],
+    "license": "LGPL-3.0-only",
+    "homepage": "https://github.com/Laurens-Lyceum/mws-client-php",
+    "support": {
+        "source": "https://github.com/Laurens-Lyceum/mws-client-php",
+        "issues": "https://github.com/Laurens-Lyceum/mws-client-php/issues"
+    },
+    "authors": [
+        {
+            "name": "Ravi van Rooijen",
+            "email": "rro@laurenslyceum.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "LaurensLyceum\\MWS\\Client\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
