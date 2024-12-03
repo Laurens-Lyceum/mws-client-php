@@ -5,10 +5,10 @@ namespace LaurensLyceum\MWS\Client;
 
 use Exception;
 use InvalidArgumentException;
-use LaurensLyceum\MWS\Client\Exceptions\MWSNoCredentialsException;
 use LaurensLyceum\MWS\Client\Exceptions\MWSEncodingException;
 use LaurensLyceum\MWS\Client\Exceptions\MWSFailedRequestException;
 use LaurensLyceum\MWS\Client\Exceptions\MWSInterpretationException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSNoCredentialsException;
 use LogicException;
 use SensitiveParameter;
 use SimpleXMLElement;
@@ -64,6 +64,41 @@ class MWSClient
         }
         return $hasUsername;
     }
+
+
+    /**
+     * STUB phpdoc getData
+     *
+     * @param string $layout
+     * @param array $parameters
+     * @return array
+     *
+     * @throws MWSNoCredentialsException
+     * @throws MWSEncodingException
+     * @throws MWSFailedRequestException
+     * @throws MWSInterpretationException
+     */
+    public function getData(string $layout, array $parameters): array
+    {
+        if (!$this->hasCredentials()) {
+            throw new MWSNoCredentialsException();
+        }
+
+        if (array_is_list($parameters)) {
+            throw new InvalidArgumentException("Parameters must be an associative array, got keys: " . implode(", ", array_keys($parameters)));
+        }
+
+        return $this->call(
+            "Data",
+            "GetData",
+            [
+                "Layout" => $layout,
+                "Parameters" => $parameters
+            ]
+        );
+    }
+
+    // STUB Implement convenience methods for the other services
 
 
     /**
