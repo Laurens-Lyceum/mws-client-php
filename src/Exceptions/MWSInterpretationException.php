@@ -12,9 +12,9 @@ use Throwable;
  * Exception thrown when the response to an {@link MWSClient::call() MWS call} could not be interpreted.
  *
  * @see MWSClient::call()
- * @see MWSRequestFailedException For when a request could not be completed at all.
+ * @see MWSFailedRequestException For when a request could not be completed at all.
  */
-class MWSResponseInterpretationException extends MWSClientException
+class MWSInterpretationException extends MWSClientException
 {
     // TODO Split into more descriptive subtypes based on exception types/error codes
 

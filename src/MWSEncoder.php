@@ -3,30 +3,30 @@ declare(strict_types=1);
 
 namespace LaurensLyceum\MWS\Client;
 
-use LaurensLyceum\MWS\Client\Exceptions\MWSParameterEncodingException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSEncodingException;
 use Stringable;
 
 /**
- * @see MWSParameterEncoder::encodeParameterValue()
+ * STUB phpdoc MWSEncoder
  * @see MWSClient::call()
  */
-class MWSParameterEncoder
+class MWSEncoder
 {
 
     /**
-     * Encode a value for use as a parameter of an MWS call.
+     * Encode a value for use as a parameter of an {@link MWSClient::call()}.
      * Note that this value is not yet URL encoded.
      *
      * Values must be of one of the following types: `string`, `Stringable`, `int`, `float`, `bool`, `null` or `array`.
-     * 1. `Stringable`, `int` and `float` are cast to a `string`.
-     * 2. `null` values are converted to an empty string.
-     * 3. `bool` values are converted to `0` or `1`, corresponding to SQL Server's representation of `FALSE` and `TRUE`, respectively.
-     * 4. Sequential `array` values will be {@link implode() imploded} with a comma.
-     * Elements must be of one of the aforementioned types, except `array`.
-     * 5. Associative `array` values will be encoded as `key=value;key=value;...`.
-     * Elements must be of one of the aforementioned types, except `array`.
+     * 1. `array` values will be encoded with {@link self::encodeArray()}
+     * 2. Other values will be encoded with {@link self::encodeScalarish()}.
      *
-     * @throws MWSParameterEncodingException
+     * @param mixed $value
+     * @return string
+     * @throws MWSEncodingException
+     *
+     * @see MWSClient::call()
+     * @see self::encodeScalarish()
      */
     public static function encodeParameterValue(mixed $value): string
     {
@@ -38,14 +38,17 @@ class MWSParameterEncoder
 
     /**
      * Encode values of type `string`, `Stringable`, `int`, `float`, `bool` or `null`.
+     *  1. `Stringable`, `int` and `float` are cast to a `string`.
+     *  2. `null` values are converted to an empty string.
+     *  3. `bool` values are converted to `0` or `1`, corresponding to SQL Server's representation of `FALSE` and `TRUE`, respectively.
      *
      * @param mixed $value
      * @return string
-     * @throws MWSParameterEncodingException
+     * @throws MWSEncodingException
      *
      * @see encodeParameterValue()
      */
-    private static function encodeScalarish(mixed $value): string
+    public static function encodeScalarish(mixed $value): string
     {
         if ($value === null) {
             return '';
@@ -56,21 +59,24 @@ class MWSParameterEncoder
             return (string)$value;
         } else {
             $type = gettype($value);
-            throw new MWSParameterEncodingException("Value is of type '$type', expected string, Stringable, int, float, bool, null or array", $value);
+            throw new MWSEncodingException("Value is of type '$type', expected string, Stringable, int, float, bool or null", $value);
         }
     }
 
     /**
      * Encode values of type `array`.
+     *  1. Sequential arrays will be encoded as: `value,value,...`.
+     *  2. Associative arrays will be encoded as: `key=value;key=value;...`.
+     * Each element is encoded using {@link self::encodeScalarish()}.
      *
      * @param array $value
      * @return string
-     * @throws MWSParameterEncodingException
+     * @throws MWSEncodingException
      *
      * @see encodeParameterValue()
      * @see encodeScalarish()
      */
-    private static function encodeArray(array $value): string
+    public static function encodeArray(array $value): string
     {
         $encodedValue = '';
         $sequential = array_is_list($value);
@@ -82,7 +88,7 @@ class MWSParameterEncoder
                     // foo,bar,baz
                     if (str_contains($encodedElement, ',')) {
                         // Don't directly log encoded value, it could be something sensitive like a password
-                        throw new MWSParameterEncodingException("Encoded elements in sequential array must not contain special character: ','", $encodedElement);
+                        throw new MWSEncodingException("Encoded elements in sequential array must not contain special character: ','", $encodedElement);
                     }
                     // Note that `encodeScalarish` doesn't behave the same as `implode`
                     $encodedValue .= ",$encodedElement";
@@ -90,12 +96,12 @@ class MWSParameterEncoder
                     // foo=bar;baz=qux
                     if (str_contains($encodedElement, ';') || str_contains($encodedElement, '=')) {
                         // Don't directly log encoded value, it could be something sensitive like a password
-                        throw new MWSParameterEncodingException("Encoded elements in associative array must not contain special characters: ';' or '='", $encodedElement);
+                        throw new MWSEncodingException("Encoded elements in associative array must not contain special characters: ';' or '='", $encodedElement);
                     }
                     $encodedValue .= ";$key=$encodedElement";
                 }
-            } catch (MWSParameterEncodingException $e) {
-                throw new MWSParameterEncodingException("Could not encode element at '$key'", $value, $e);
+            } catch (MWSEncodingException $e) {
+                throw new MWSEncodingException("Could not encode element at '$key'", $value, $e);
             }
         }
 

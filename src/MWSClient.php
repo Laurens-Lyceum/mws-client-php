@@ -5,9 +5,10 @@ namespace LaurensLyceum\MWS\Client;
 
 use Exception;
 use InvalidArgumentException;
-use LaurensLyceum\MWS\Client\Exceptions\MWSParameterEncodingException;
-use LaurensLyceum\MWS\Client\Exceptions\MWSRequestFailedException;
-use LaurensLyceum\MWS\Client\Exceptions\MWSResponseInterpretationException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSNoCredentialsException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSEncodingException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSFailedRequestException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSInterpretationException;
 use LogicException;
 use SensitiveParameter;
 use SimpleXMLElement;
@@ -71,18 +72,17 @@ class MWSClient
      * @param string $library
      * @param string $function
      * @param array $parameters Associative array of query parameters.
-     * See {@link MWSParameterEncoder::encodeParameterValue()} for the encoding rules.
+     * See {@link MWSEncoder::encodeParameterValue()} for the encoding rules.
      * The following parameters are handled automatically and should not be supplied manually: `Library`, `Function`, `Type` and `SessionToken`.
      * @param int $timeout Timeout in seconds. Default is 10 seconds.
      *
-     * @return array The parsed response table. See {@link MWSResponseInterpreter::parseResponseTable()} for the mapping methodology.
+     * @return array The parsed response table. See {@link MWSInterpreter::parseResponseTable()} for the mapping methodology.
      *
-     * @throws MWSParameterEncodingException
-     * @throws MWSRequestFailedException
-     * @throws MWSResponseInterpretationException
+     * @throws MWSEncodingException
+     * @throws MWSFailedRequestException
+     * @throws MWSInterpretationException
      *
-     * @see MWSParameterEncoder
-     * @see MWSResponseInterpreter
+     * @see MWSInterpreter
      */
     public function call(string $library, string $function, array $parameters, int $timeout = 10): array
     {
@@ -107,7 +107,7 @@ class MWSClient
                 throw new InvalidArgumentException("MWS call parameter '$key' is reserved");
             }
             // TEST Encoding
-            $queryParams[$key] = MWSParameterEncoder::encodeParameterValue($value);
+            $queryParams[$key] = MWSEncoder::encodeParameterValue($value);
         }
 
 
@@ -128,12 +128,12 @@ class MWSClient
         if ($response === false) {
             $error = curl_error($curl);
             $errno = curl_errno($curl);
-            throw new MWSRequestFailedException("cURL error: $error ($errno)");
+            throw new MWSFailedRequestException("cURL error: $error ($errno)");
         }
 
         $responseCode = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         if ($responseCode !== 200) {
-            throw new MWSRequestFailedException("Unexpected response code: $responseCode", $response);
+            throw new MWSFailedRequestException("Unexpected response code: $responseCode", $response);
         }
 
 
@@ -144,10 +144,10 @@ class MWSClient
             $xml = new SimpleXMLElement($response);
         } catch (Exception $e) {
             // TEST Malformed XML
-            throw new MWSResponseInterpretationException("Could not parse XML", $response, $e);
+            throw new MWSInterpretationException("Could not parse XML", $response, $e);
         }
 
-        return MWSResponseInterpreter::interpretResponse($xml);
+        return MWSInterpreter::interpretResponse($xml);
     }
 
 }

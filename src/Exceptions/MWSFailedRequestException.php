@@ -11,9 +11,9 @@ use Throwable;
  * Exception thrown when a {@link MWSClient::call() request to MWS} fails outright.
  *
  * @see MWSClient::call()
- * @see MWSResponseInterpretationException For when a request was completed, but the response doesn't make sense.
+ * @see MWSInterpretationException For when a request was completed, but the response doesn't make sense.
  */
-class MWSRequestFailedException extends MWSClientException
+class MWSFailedRequestException extends MWSClientException
 {
 
     public function __construct(

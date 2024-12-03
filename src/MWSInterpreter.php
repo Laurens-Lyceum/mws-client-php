@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace LaurensLyceum\MWS\Client;
 
-use LaurensLyceum\MWS\Client\Exceptions\MWSResponseInterpretationException;
+use LaurensLyceum\MWS\Client\Exceptions\MWSInterpretationException;
 use SimpleXMLElement;
 
 /**
- * @see MWSResponseInterpreter::interpretResponse()
+ * STUB phpdoc MWSInterpreter
  * @see MWSClient::call()
  */
-class MWSResponseInterpreter
+class MWSInterpreter
 {
 
     /**
@@ -19,7 +19,7 @@ class MWSResponseInterpreter
      * @param SimpleXMLElement $xml
      * @return array The parsed response table. See {@link parseResponseTable()} for the mapping methodology.
      *
-     * @throws MWSResponseInterpretationException
+     * @throws MWSInterpretationException
      *
      * @see MWSClient::call()
      * @see parseResponseTable()
@@ -28,25 +28,25 @@ class MWSResponseInterpreter
     {
         if (isset($xml->Exception)) {
             $message = isset($xml->ExceptionMsg) ? (string)$xml->ExceptionMsg : "No ExceptionMsg";
-            throw new MWSResponseInterpretationException("MWS returned exception: $xml->Exception - $message", $xml);
+            throw new MWSInterpretationException("MWS returned exception: $xml->Exception - $message", $xml);
         }
 
         if (!isset($xml->Result)) {
-            throw new MWSResponseInterpretationException("Missing Result node", $xml);
+            throw new MWSInterpretationException("Missing Result node", $xml);
         }
 
         if ((string)$xml->Result !== "True") {
             try {
                 $errorTable = self::parseResponseTable($xml);
-            } catch (MWSResponseInterpretationException $e) {
-                throw new MWSResponseInterpretationException("MWS returned non-true result ($xml->Result) and could not parse response table with errors", $xml, $e);
+            } catch (MWSInterpretationException $e) {
+                throw new MWSInterpretationException("MWS returned non-true result ($xml->Result) and could not parse response table with errors", $xml, $e);
             }
 
             $errorSummaries = array_map(
                 fn($error) => ($error->Fout_omschrijving ?? "No summary") . " (" . ($error->Fout_nummer ?? "no code") . ")",
                 $errorTable
             );
-            throw new MWSResponseInterpretationException("MWS returned non-true result ($xml->Result) with the following errors: " . implode(", ", $errorSummaries), $xml);
+            throw new MWSInterpretationException("MWS returned non-true result ($xml->Result) with the following errors: " . implode(", ", $errorSummaries), $xml);
         }
 
         // CHECK ResultMessage?
@@ -93,7 +93,7 @@ class MWSResponseInterpreter
      * @param SimpleXMLElement $xml
      * @return array
      *
-     * @throws MWSResponseInterpretationException
+     * @throws MWSInterpretationException
      *
      * @see interpretResponse()
      */
@@ -103,13 +103,13 @@ class MWSResponseInterpreter
 
         $table = $xml->Table;
         if (!isset($table)) {
-            throw new MWSResponseInterpretationException("Missing Table node", $xml);
+            throw new MWSInterpretationException("Missing Table node", $xml);
         }
 
         // Expect exactly one 'plural' direct child node
         $directChildren = $table->children();
         if ($directChildren->count() !== 1) {
-            throw new MWSResponseInterpretationException("Incorrect amount of child nodes for response table, expected 1 got {$directChildren->count()}", $table);
+            throw new MWSInterpretationException("Incorrect amount of child nodes for response table, expected 1 got {$directChildren->count()}", $table);
         }
         $plural = $directChildren[0];
 
@@ -120,7 +120,7 @@ class MWSResponseInterpreter
         foreach ($plural->children() as $row) {
             $singularNodesName ??= $row->getName();
             if ($singularNodesName !== $row->getName()) {
-                throw new MWSResponseInterpretationException("Unexpected child node of {$plural->getName()} in response table, expected '$singularNodesName' got '{$row->getName()}'", $table);
+                throw new MWSInterpretationException("Unexpected child node of {$plural->getName()} in response table, expected '$singularNodesName' got '{$row->getName()}'", $table);
             }
 
             // TODO Parse directly into class instance

@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace LaurensLyceum\MWS\Client\Exceptions;
 
-use LaurensLyceum\MWS\Client\MWSParameterEncoder;
+use LaurensLyceum\MWS\Client\MWSEncoder;
 use SensitiveParameter;
 use Throwable;
 
 /**
  * Exception thrown when the value of a parameter for an {@link MWSClient::call() MWS call} could not be encoded.
  *
- * @see MWSParameterEncoder
+ * @see MWSEncoder
  */
-class MWSParameterEncodingException extends MWSClientException
+class MWSEncodingException extends MWSClientException
 {
 
     public function __construct(
